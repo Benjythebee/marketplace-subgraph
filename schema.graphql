@@ -4,3 +4,27 @@ type ExampleEntity @entity {
   previousAdmin: Bytes! # address
   newAdmin: Bytes! # address
 }
+
+type Listing @entity {
+  id: ID!
+  lister: String!
+  tokenAddress: String!
+  tokenId: Number!
+  price: Number!
+  quantity: Number!
+  listingId: Bytes!
+  acceptedPayment: String
+  isSold: Bool
+}
+
+type Sales @entity {
+  id: ID!
+  seller: String!
+  buyer: String!
+  tokenAddress: String!
+  tokenId: Number!
+  price: Number!
+  quantity: Number!
+  listingId: Bytes!
+  acceptedPayment: String
+}

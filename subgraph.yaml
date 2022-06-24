@@ -1,4 +1,4 @@
-specVersion: 0.0.1
+specVersion: 0.0.4
 schema:
   file: ./schema.graphql
 dataSources:
@@ -13,41 +13,18 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - AdminChanged
-        - BeaconUpgraded
-        - CancelSale
-        - Initialized
-        - NewListing
-        - OwnershipTransferred
-        - Paused
-        - Sale
-        - SaleWithToken
-        - Unpaused
-        - Upgraded
+        - Listing
+        - Sales
       abis:
         - name: Marketplace
           file: ./abis/Marketplace.json
       eventHandlers:
-        - event: AdminChanged(address,address)
-          handler: handleAdminChanged
-        - event: BeaconUpgraded(indexed address)
-          handler: handleBeaconUpgraded
         - event: CancelSale(address,uint256,uint256,bytes32)
           handler: handleCancelSale
-        - event: Initialized(uint8)
-          handler: handleInitialized
         - event: NewListing(address,address,uint256,uint256,uint256,bytes32,address)
           handler: handleNewListing
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-        - event: Paused(address)
-          handler: handlePaused
         - event: Sale(address,address,uint256,uint256,bytes32)
           handler: handleSale
         - event: SaleWithToken(address,address,address,uint256,uint256,bytes32)
           handler: handleSaleWithToken
-        - event: Unpaused(address)
-          handler: handleUnpaused
-        - event: Upgraded(indexed address)
-          handler: handleUpgraded
       file: ./src/marketplace.ts

@@ -1,17 +1,10 @@
 import { BigInt } from "@graphprotocol/graph-ts"
 import {
   Marketplace,
-  AdminChanged,
-  BeaconUpgraded,
   CancelSale,
-  Initialized,
   NewListing,
-  OwnershipTransferred,
-  Paused,
   Sale,
   SaleWithToken,
-  Unpaused,
-  Upgraded
 } from "../generated/Marketplace/Marketplace"
 import { ExampleEntity } from "../generated/schema"
 
@@ -78,22 +71,11 @@ export function handleAdminChanged(event: AdminChanged): void {
   // - contract.versionRecipient(...)
 }
 
-export function handleBeaconUpgraded(event: BeaconUpgraded): void {}
 
 export function handleCancelSale(event: CancelSale): void {}
 
-export function handleInitialized(event: Initialized): void {}
-
 export function handleNewListing(event: NewListing): void {}
-
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
-
-export function handlePaused(event: Paused): void {}
 
 export function handleSale(event: Sale): void {}
 
 export function handleSaleWithToken(event: SaleWithToken): void {}
-
-export function handleUnpaused(event: Unpaused): void {}
-
-export function handleUpgraded(event: Upgraded): void {}
