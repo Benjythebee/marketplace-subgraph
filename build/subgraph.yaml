@@ -1,6 +1,6 @@
 specVersion: 0.0.4
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: Marketplace
@@ -18,7 +18,7 @@ dataSources:
         - SalesEntity
       abis:
         - name: Marketplace
-          file: ./abis/Marketplace.json
+          file: Marketplace\abis\Marketplace.json
       eventHandlers:
         - event: CancelSale(address,uint256,uint256,bytes32)
           handler: handleCancelSale
@@ -28,4 +28,4 @@ dataSources:
           handler: handleSale
         - event: SaleWithToken(address,address,address,uint256,uint256,bytes32)
           handler: handleSaleWithToken
-      file: ./src/marketplace.ts
+      file: Marketplace\Marketplace.wasm

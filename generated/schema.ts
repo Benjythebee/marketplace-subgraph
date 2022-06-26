@@ -104,13 +104,13 @@ export class ListingEntity extends Entity {
     this.set("acceptedPayment", Value.fromString(value));
   }
 
-  get status(): string {
+  get status(): bool {
     let value = this.get("status");
-    return value!.toString();
+    return value!.toBoolean();
   }
 
-  set status(value: string) {
-    this.set("status", Value.fromString(value));
+  set status(value: bool) {
+    this.set("status", Value.fromBoolean(value));
   }
 }
 
@@ -218,11 +218,11 @@ export class SalesEntity extends Entity {
   }
  
   get listingId(): Bytes {
-    let value = this.get("acceptedPayment");
+    let value = this.get("listingId");
     return value!.toBytes();
   }
 
   set listingId(value: Bytes) {
-    this.set("acceptedPayment", Value.fromBytes(value));
+    this.set("listingId", Value.fromBytes(value));
   }
 }

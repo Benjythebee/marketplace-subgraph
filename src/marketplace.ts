@@ -8,18 +8,12 @@ import {
 } from "../generated/Marketplace/Marketplace"
 import { ListingEntity, SalesEntity } from "../generated/schema"
 
-enum Status {
-  Listed = "listed",
-  Sold = "sold",
-  Cancelled = "cancelled"
-}
-
 export function handleCancelSale(event: CancelSale): void {
   const listingId = event.params.listingId
   let entity = ListingEntity.load(listingId.toHex())
 
   if (entity) {
-    entity.status = Status.Cancelled
+    entity.status = false
 
     entity.save()
   }
@@ -44,7 +38,7 @@ export function handleNewListing(event: NewListing): void {
   entity.price = event.params.price
   entity.quantity = event.params.quantity
   entity.acceptedPayment = event.params.acceptedPayment.toString();
-  entity.status = Status.Listed
+  entity.status = true
 
   // Entities can be written to the store with `.save()`
   entity.save()
