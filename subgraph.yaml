@@ -13,8 +13,8 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Listing
-        - Sales
+        - ListingEntity
+        - SalesEntity
       abis:
         - name: Marketplace
           file: ./abis/Marketplace.json

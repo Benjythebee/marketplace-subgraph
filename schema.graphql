@@ -1,30 +1,28 @@
-type ExampleEntity @entity {
-  id: ID!
-  count: BigInt!
-  previousAdmin: Bytes! # address
-  newAdmin: Bytes! # address
+enum Status {
+  Listed
+  Sold
+  Cancelled
 }
 
-type Listing @entity {
+type ListingEntity @entity {
   id: ID!
-  lister: String!
-  tokenAddress: String!
-  tokenId: Number!
-  price: Number!
-  quantity: Number!
-  listingId: Bytes!
+  seller: String!
+  contractAddress: Address!
+  tokenId: BigInt!
+  price: BigInt!
+  quantity: BigInt!
   acceptedPayment: String
-  isSold: Bool
+  status: Status
 }
 
-type Sales @entity {
+type SalesEntity @entity {
   id: ID!
   seller: String!
   buyer: String!
-  tokenAddress: String!
-  tokenId: Number!
-  price: Number!
-  quantity: Number!
-  listingId: Bytes!
+  contractAddress: String!
+  tokenId: BigInt!
+  price: BigInt!
+  quantity: BigInt!
   acceptedPayment: String
+  listingId: Bytes!
 }

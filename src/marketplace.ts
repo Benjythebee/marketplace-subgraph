@@ -1,33 +1,50 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
+
 import {
-  Marketplace,
   CancelSale,
   NewListing,
   Sale,
   SaleWithToken,
 } from "../generated/Marketplace/Marketplace"
-import { ExampleEntity } from "../generated/schema"
+import { ListingEntity, SalesEntity } from "../generated/schema"
 
-export function handleAdminChanged(event: AdminChanged): void {
+enum Status {
+  Listed = "listed",
+  Sold = "sold",
+  Cancelled = "cancelled"
+}
+
+export function handleCancelSale(event: CancelSale): void {
+  const listingId = event.params.listingId
+  let entity = ListingEntity.load(listingId.toHex())
+
+  if (entity) {
+    entity.status = Status.Cancelled
+
+    entity.save()
+  }
+}
+
+export function handleNewListing(event: NewListing): void {
   // Entities can be loaded from the store using a string ID; this ID
   // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
+  const listingId = event.params.listingId
+  let entity = ListingEntity.load(listingId.toHex())
 
   // Entities only exist after they have been saved to the store;
   // `null` checks allow to create entities on demand
   if (!entity) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
-
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
+    entity = new ListingEntity(listingId.toHex())
   }
 
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
   // Entity fields can be set based on event parameters
-  entity.previousAdmin = event.params.previousAdmin
-  entity.newAdmin = event.params.newAdmin
+  entity.seller = event.params.seller.toString();
+  entity.contractAddress = event.params.contractAddress.toString();
+  entity.tokenId = event.params.tokenId
+  entity.price = event.params.price
+  entity.quantity = event.params.quantity
+  entity.acceptedPayment = event.params.acceptedPayment.toString();
+  entity.status = Status.Listed
 
   // Entities can be written to the store with `.save()`
   entity.save()
@@ -71,11 +88,44 @@ export function handleAdminChanged(event: AdminChanged): void {
   // - contract.versionRecipient(...)
 }
 
+export function handleSale(event: Sale): void {
+  const id = event.transaction.hash.toString() + "-" + event.logIndex.toString();
+  const entity = new SalesEntity(id)
 
-export function handleCancelSale(event: CancelSale): void {}
+  // Entity fields can be set based on event parameters
+  entity.seller = event.params.seller.toString()
+  entity.buyer = event.params.buyer.toString()
+  entity.tokenId = event.params.tokenId
+  entity.price = event.params.price
+  entity.listingId = event.params.listingId
+  // entity.contractAddress = event.params.contractAddress
+  // entity.quantity = event.params.quantity
+  // entity.acceptedPayment = ZERO_ADDRESS
 
-export function handleNewListing(event: NewListing): void {}
+  // Entities can be written to the store with `.save()`
+  entity.save()
+}
 
-export function handleSale(event: Sale): void {}
+export function handleSaleWithToken(event: SaleWithToken): void {
+  const listingId = event.params.listingId
+  let entity = SalesEntity.load(listingId.toHex())
 
-export function handleSaleWithToken(event: SaleWithToken): void {}
+  // Entities only exist after they have been saved to the store;
+  // `null` checks allow to create entities on demand
+  if (!entity) {
+    entity = new SalesEntity(listingId.toHex())
+  }
+
+  // Entity fields can be set based on event parameters
+  entity.seller = event.params.seller.toString()
+  entity.buyer = event.params.buyer.toString()
+  entity.contractAddress = event.params.contractAddress.toString()
+  entity.tokenId = event.params.tokenId
+  entity.price = event.params.price
+  entity.listingId = event.params.listingId
+  // entity.quantity = event.params.quantity
+  // entity.acceptedPayment = event.params.acceptedPayment
+
+  // Entities can be written to the store with `.save()`
+  entity.save()
+}
