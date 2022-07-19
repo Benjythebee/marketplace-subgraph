@@ -1,22 +1,54 @@
+
+type User @entity {
+  id: ID! # eth address
+  nfts:[NFT!]! @derivedFrom (field: "owner")
+  listings:[ListingEntity!]! @derivedFrom (field: "seller")
+  saleEvents: [SalesEntity!]! @derivedFrom (field: "collection")
+}
+
+
+type Collection @entity {
+  id: ID! # eth address
+  price_floor:BigInt
+  saleEvents: [SalesEntity!]! @derivedFrom (field: "collection")
+}
+
+type NFT @entity {
+  id: ID! # collection_address @ token_id
+  collection:Collection!
+  token_id:BigInt!
+  owner:User!
+  last_sold_at_price:BigInt
+  last_sold_at_timestamp:BigInt
+  saleEvents: [SalesEntity!]! @derivedFrom (field: "nft")
+}
+
+type PaymentToken @entity {
+  id:ID!
+  symbol:String!
+  decimals:Int!
+}
+
 type ListingEntity @entity {
   id: ID!
-  seller: String!
-  contractAddress: String!
-  tokenId: BigInt!
+  seller: User!
+  collection: Collection!
+  nft: NFT!
   price: BigInt!
   quantity: BigInt!
-  acceptedPayment: String
+  acceptedPayment: PaymentToken!
   isListed: Boolean
 }
 
 type SalesEntity @entity {
   id: ID!
-  seller: String!
-  buyer: String!
-  contractAddress: String!
-  tokenId: BigInt!
+  seller: User!
+  buyer: User!
+  collection: Collection!
+  nft: NFT!
   price: BigInt!
   quantity: BigInt!
-  acceptedPayment: String
+  acceptedPayment: PaymentToken
   listingId: Bytes!
+  ListindIndex: BigInt
 }

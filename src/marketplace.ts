@@ -7,15 +7,14 @@ import {
   SaleWithToken,
 } from "../generated/Marketplace/Marketplace"
 import { ListingEntity, SalesEntity } from "../generated/schema"
+import { store } from '@graphprotocol/graph-ts'
 
 export function handleCancelSale(event: CancelSale): void {
   const listingId = event.params.listingId
+  const listingId = event.params.
   let entity = ListingEntity.load(listingId.toHex())
-
-  if (entity) {
-    entity.status = false
-
-    entity.save()
+  if(entity){
+    store.remove('Transfer', entity.id)
   }
 }
 
