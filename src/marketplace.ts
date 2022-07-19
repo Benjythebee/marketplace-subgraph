@@ -7,15 +7,14 @@ import {
   SaleWithToken,
 } from "../generated/Marketplace/Marketplace"
 import { ListingEntity, SalesEntity } from "../generated/schema"
-
+import { log, store } from '@graphprotocol/graph-ts'
 export function handleCancelSale(event: CancelSale): void {
   const listingId = event.params.listingId
-  let entity = ListingEntity.load(listingId.toHex())
-
-  if (entity) {
-    entity.status = false
-
-    entity.save()
+  const listingIndex = event.params.listingIndex
+  const id=  listingId.toHex()+':'+listingIndex.toString()
+  let entity = ListingEntity.load(id)
+  if(entity){
+    store.remove('ListingEntity',id)
   }
 }
 
@@ -38,7 +37,6 @@ export function handleNewListing(event: NewListing): void {
   entity.price = event.params.price
   entity.quantity = event.params.quantity
   entity.acceptedPayment = event.params.acceptedPayment.toString();
-  entity.status = true
 
   // Entities can be written to the store with `.save()`
   entity.save()
@@ -83,9 +81,16 @@ export function handleNewListing(event: NewListing): void {
 }
 
 export function handleSale(event: Sale): void {
-  const id = event.transaction.hash.toString() + "-" + event.logIndex.toString();
-  const entity = new SalesEntity(id)
+  const listingId = event.params.listingId
+  const listingIndex = event.params.listingIndex
+  const id=  listingId.toHex()+':'+listingIndex.toString()
+  let entity = ListingEntity.load(id)
 
+  if(entity == null){
+    log.info('Entity does not existing')
+    return
+  }
+  
   // Entity fields can be set based on event parameters
   entity.seller = event.params.seller.toString()
   entity.buyer = event.params.buyer.toString()
