@@ -1,4 +1,4 @@
-import { ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
+import { ADDRESS_ZERO, ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
 
 import {
   CancelSale,
@@ -7,15 +7,14 @@ import {
   SaleWithToken,
 } from "../generated/Marketplace/Marketplace"
 import { ListingEntity, SalesEntity } from "../generated/schema"
-
+import { BigInt, log, store } from '@graphprotocol/graph-ts'
 export function handleCancelSale(event: CancelSale): void {
   const listingId = event.params.listingId
-  let entity = ListingEntity.load(listingId.toHex())
-
-  if (entity) {
-    entity.status = false
-
-    entity.save()
+  const listingIndex = event.params.listingIndex
+  const id=  listingId.toHex()+':'+listingIndex.toString()
+  let entity = ListingEntity.load(id)
+  if(entity){
+    store.remove('ListingEntity',id)
   }
 }
 
@@ -38,7 +37,6 @@ export function handleNewListing(event: NewListing): void {
   entity.price = event.params.price
   entity.quantity = event.params.quantity
   entity.acceptedPayment = event.params.acceptedPayment.toString();
-  entity.status = true
 
   // Entities can be written to the store with `.save()`
   entity.save()
@@ -83,18 +81,39 @@ export function handleNewListing(event: NewListing): void {
 }
 
 export function handleSale(event: Sale): void {
-  const id = event.transaction.hash.toString() + "-" + event.logIndex.toString();
-  const entity = new SalesEntity(id)
+  const listingId = event.params.listingId
+  const listingIndex = event.params.listingIndex
+  const quantity = event.params.quantity
+  const saleDate = event.params.saleDate
+  const id=  listingId.toHex()+':'+listingIndex.toString()
+  const saleId=  id+'@'+saleDate.toString()
+  let entity = ListingEntity.load(id)
 
+  if(entity == null){
+    log.info('Entity {} does not exist',[id])
+    return
+  }
+
+  let sale = SalesEntity.load(saleId)
+  if(sale==null){
+    sale = new SalesEntity(saleId)
+    sale.acceptedPayment=entity.acceptedPayment
+    sale.buyer=ADDRESS_ZERO
+    sale.contractAddress=entity.contractAddress
+    sale.listingId=event.params.listingId
+    sale.price = entity.price
+    sale.quantity = quantity
+    sale.save()
+  }
+
+  let q = entity.quantity
   // Entity fields can be set based on event parameters
-  entity.seller = event.params.seller.toString()
-  entity.buyer = event.params.buyer.toString()
-  entity.tokenId = event.params.tokenId
-  entity.price = event.params.price
-  entity.listingId = event.params.listingId
-  // entity.contractAddress = event.params.contractAddress
-  // entity.quantity = event.params.quantity
-  // entity.acceptedPayment = ZERO_ADDRESS
+  if(quantity > q){
+    q = BigInt.zero()
+  }else if(q!=BigInt.zero()){
+    q = q.minus(quantity)
+  }
+  entity.quantity = q
 
   // Entities can be written to the store with `.save()`
   entity.save()
@@ -102,23 +121,38 @@ export function handleSale(event: Sale): void {
 
 export function handleSaleWithToken(event: SaleWithToken): void {
   const listingId = event.params.listingId
-  let entity = SalesEntity.load(listingId.toHex())
+  const listingIndex = event.params.listingIndex
+  const quantity = event.params.quantity
+  const saleDate = event.params.saleDate
+  const id=  listingId.toHex()+':'+listingIndex.toString()
+  const saleId=  id+'@'+saleDate.toString()
+  let entity = ListingEntity.load(id)
 
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new SalesEntity(listingId.toHex())
+  if(entity == null){
+    log.info('Entity {} does not exist',[id])
+    return
   }
 
+  let sale = SalesEntity.load(saleId)
+  if(sale==null){
+    sale = new SalesEntity(saleId)
+    sale.acceptedPayment=entity.acceptedPayment
+    sale.buyer=ADDRESS_ZERO
+    sale.contractAddress=entity.contractAddress
+    sale.listingId=event.params.listingId
+    sale.price = entity.price
+    sale.quantity = quantity
+    sale.save()
+  }
+
+  let q = entity.quantity
   // Entity fields can be set based on event parameters
-  entity.seller = event.params.seller.toString()
-  entity.buyer = event.params.buyer.toString()
-  entity.contractAddress = event.params.contractAddress.toString()
-  entity.tokenId = event.params.tokenId
-  entity.price = event.params.price
-  entity.listingId = event.params.listingId
-  // entity.quantity = event.params.quantity
-  // entity.acceptedPayment = event.params.acceptedPayment
+  if(quantity > q){
+    q = BigInt.zero()
+  }else if(q!=BigInt.zero()){
+    q = q.minus(quantity)
+  }
+  entity.quantity = q
 
   // Entities can be written to the store with `.save()`
   entity.save()
