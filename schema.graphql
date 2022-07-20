@@ -3,7 +3,6 @@ type User @entity {
   id: ID! # eth address
   nfts:[NFT!]! @derivedFrom (field: "owner")
   listings:[ListingEntity!]! @derivedFrom (field: "seller")
-  saleEvents: [SalesEntity!]! @derivedFrom (field: "collection")
 }
 
 
@@ -46,9 +45,6 @@ type SalesEntity @entity {
   buyer: User!
   collection: Collection!
   nft: NFT!
-  price: BigInt!
+  listing: ListingEntity!
   quantity: BigInt!
-  acceptedPayment: PaymentToken
-  listingId: Bytes!
-  ListindIndex: BigInt
 }

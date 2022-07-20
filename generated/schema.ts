@@ -11,6 +11,56 @@ import {
   BigDecimal
 } from "@graphprotocol/graph-ts";
 
+export class User extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save User entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type User must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("User", id.toString(), this);
+    }
+  }
+
+  static load(id: string): User | null {
+    return changetype<User | null>(store.get("User", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get nfts(): Array<string> {
+    let value = this.get("nfts");
+    return value!.toStringArray();
+  }
+
+  set nfts(value: Array<string>) {
+    this.set("nfts", Value.fromStringArray(value));
+  }
+
+  get listings(): Array<string> {
+    let value = this.get("listings");
+    return value!.toStringArray();
+  }
+
+  set listings(value: Array<string>) {
+    this.set("listings", Value.fromStringArray(value));
+  }
+}
+
 export class Collection extends Entity {
   constructor(id: string) {
     super();
@@ -42,13 +92,21 @@ export class Collection extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get price_floor(): BigInt {
+  get price_floor(): BigInt | null {
     let value = this.get("price_floor");
-    return value!.toBigInt();
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set price_floor(value: BigInt) {
-    this.set("price_floor", Value.fromBigInt(value));
+  set price_floor(value: BigInt | null) {
+    if (!value) {
+      this.unset("price_floor");
+    } else {
+      this.set("price_floor", Value.fromBigInt(<BigInt>value));
+    }
   }
 
   get saleEvents(): Array<string> {
@@ -375,13 +433,13 @@ export class SalesEntity extends Entity {
     this.set("nft", Value.fromString(value));
   }
 
-  get price(): BigInt {
-    let value = this.get("price");
-    return value!.toBigInt();
+  get listing(): string {
+    let value = this.get("listing");
+    return value!.toString();
   }
 
-  set price(value: BigInt) {
-    this.set("price", Value.fromBigInt(value));
+  set listing(value: string) {
+    this.set("listing", Value.fromString(value));
   }
 
   get quantity(): BigInt {
@@ -391,48 +449,5 @@ export class SalesEntity extends Entity {
 
   set quantity(value: BigInt) {
     this.set("quantity", Value.fromBigInt(value));
-  }
-
-  get acceptedPayment(): string | null {
-    let value = this.get("acceptedPayment");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set acceptedPayment(value: string | null) {
-    if (!value) {
-      this.unset("acceptedPayment");
-    } else {
-      this.set("acceptedPayment", Value.fromString(<string>value));
-    }
-  }
-
-  get listingId(): Bytes {
-    let value = this.get("listingId");
-    return value!.toBytes();
-  }
-
-  set listingId(value: Bytes) {
-    this.set("listingId", Value.fromBytes(value));
-  }
-
-  get ListindIndex(): BigInt | null {
-    let value = this.get("ListindIndex");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set ListindIndex(value: BigInt | null) {
-    if (!value) {
-      this.unset("ListindIndex");
-    } else {
-      this.set("ListindIndex", Value.fromBigInt(<BigInt>value));
-    }
   }
 }

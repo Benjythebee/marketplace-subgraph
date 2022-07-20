@@ -1,6 +1,6 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { ADDRESS_ZERO } from "@protofire/subgraph-toolkit";
-import { Collection, NFT } from "../generated/schema";
+import { Collection, ListingEntity, NFT, PaymentToken, User } from "../generated/schema";
 
 export function getCollection(address:Address):Collection{
 
@@ -26,3 +26,42 @@ export function getNFT(address:Address,tokenId:BigInt):NFT{
     return nft
 }
 
+
+export function getUser(address:Address):User{
+    const addr = address.toHex()
+    let user = User.load(addr)
+    if (user === null) {
+        user = new User(addr);
+        user.save();
+    }
+    return user
+}
+
+export function getPaymentToken(address:Address):PaymentToken{
+    const addr = address.toHex()
+    let payment = PaymentToken.load(addr)
+    if (payment === null) {
+        payment = new PaymentToken(addr);
+        if(address.toHex() == ADDRESS_ZERO){
+            payment.decimals=18
+            payment.symbol = 'MATIC' // or MATIC on polygon
+        }else{
+            // Call contract to know symbol / decimals
+
+        }
+        payment.save();
+    }
+    return payment
+}
+
+
+export function getListingEntity(listingId:Bytes,index:BigInt):ListingEntity{
+    const id=  listingId.toHex()+':'+index.toString()
+    let listing = ListingEntity.load(id)
+    if (listing === null) {
+        listing = new ListingEntity(id);
+
+        listing.save();
+    }
+    return listing
+}
