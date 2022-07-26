@@ -55,13 +55,7 @@ export function getPaymentToken(address:Address):PaymentToken{
 }
 
 
-export function getListingEntity(listingId:Bytes,index:BigInt):ListingEntity{
+export function genListingId(listingId:Bytes,index:BigInt):string{
     const id=  listingId.toHex()+':'+index.toString()
-    let listing = ListingEntity.load(id)
-    if (listing === null) {
-        listing = new ListingEntity(id);
-
-        listing.save();
-    }
-    return listing
+    return id
 }
